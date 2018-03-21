@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+  		<meta name="viewport" content="width=device-width, initial-scale=1">
+  		
+  		<!-- CSS -->
+		<link rel="stylesheet" href="GhostInspectorTests.css" type="text/css">
+
+		<!-- JavaScript -->
+		<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		<script type="text/javascript" src="GhostInspectorTests.js"></script>
+
+		<title>GhostInspectorTests</title>
+	</head>
+	<body>
+		<div id="nav-cont">
+			<div class="nav-heading">HopeOneSource Ghost Inspector Tests</div>
+			<div class="button-cont" style="padding: 22px 20px;">
+				<div class="test-instructions-button button">Custom Test Insctructions</div>
+				<div class="run-all-button button button-green">Run All Tests</div>
+			</div>
+		</div>
+		<div id="test-cont">
+		</div>
+
+		<div id="loading-tests">Loading Tests</div>
+
+		<div id="test-instructions-cont">
+			<div id="test-overlay"></div>
+			<div id="test-inst-cont">
+				<div style="font-size: 18px; padding: 15px; background-color: #e9e9e9; height: 50px; box-sizing: border-box; margin: -15px -15px 15px -15px; font-weight: bold;">Custom Test Instructions</div>
+				<div class="test-close" onclick="showTestInstructions();">x</div>
+				<div class="test-item">
+					<div class="test-heading">Starting URL</div>
+					<input class="test-input" type="text" instruction="starturl" value="" placeholder="Current: https://dev-hos.pantheonsite.io">
+				</div>
+				<div class="test-button-cont">
+					<div class="button" onclick="showTestInstructions();">Cancel</div>
+					<div class="button button-red" onclick="clearTestInstructions();">Clear</div>
+					<div class="button button-green" onclick="saveTestInstructions();" style="float: right;">Save</div>
+				</div>
+			</div>
+		</div>
+
+	</body>
+</html>
