@@ -15,9 +15,12 @@ var testFails = 0;
 
 $(document).ready(function() {
 
-	//getQueryString();
+	getQueryString();
 
-	//getTests();
+	if (testInstructions["apiKey"].length > 0) {
+		getTests();
+	}
+
 	initClickEvents();
 	$("#test-instructions-cont").hide();
 	
