@@ -1,9 +1,11 @@
 
 /*-- GLOBAL VARIABLES ------------------------------------------------------------------------*/
-var apikey = "";
+
+//     861527daa7cf3b6e26c294ea3738ec2d1df42fef
 var testData;
 var testInstructions = {
-	starturl: ""
+	apiKey: "",
+	startUrl: ""
 };
 var testPasses = 0;
 var testFails = 0;
@@ -13,9 +15,12 @@ var testFails = 0;
 
 $(document).ready(function() {
 
-	getTests();
+	//getQueryString();
+
+	//getTests();
+	initClickEvents();
 	$("#test-instructions-cont").hide();
-	getQueryString();
+	
 
 });
 
@@ -25,62 +30,107 @@ $(document).ready(function() {
 /*-- FUNCTIONS -------------------------------------------------------------------------------*/
 
 function getTests() {
-	var success = false;
 
-	$.ajax({
-		dataType: "json",
-		url: "https://api.ghostinspector.com/v1/tests/?apiKey=861527daa7cf3b6e26c294ea3738ec2d1df42fef",
-		success: function(json) {
-			testData = sortBySuite(json.data); 
-			success = true;
-			formatTests();
-			console.log("Tests retrieved: ");
-			console.log(testData);
-			$("#loading-tests").hide();
-		}
-	});
+	if (testInstructions["apiKey"].length > 0) {
+		var success = false;
+		$("#loading-tests").show();
 
-	return success;
+		$.ajax({
+			dataType: "json",
+			url: "https://api.ghostinspector.com/v1/tests/?apiKey=" + testInstructions["apiKey"],
+			success: function(json) {
+				if (json.code == "SUCCESS") {
+					testData = sortBySuite(json.data); 
+					success = true;
+					formatTests();
+					console.log("Tests retrieved: ");
+					console.log(testData);
+				}
+				else {
+					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
+				}
+
+				$("#loading-tests").hide();
+			},
+			error: function() {
+				alert("Something went wrong when getting tests.");
+			}
+		});
+
+		return success;
+	}
+	else {
+		alert("Please enter an API key");
+		showTestInstructions();
+	}
 }
 
 function runTest(testid) {
-	var results = false;
-	var $test = $(".test[id=" + testid + "]");
-	var queryData = "";
 
-	$.each(testInstructions, function(name, value) {
-		if (value.length > 0) {
-    		queryData += "&" + name + "=" + value;
-    	}
-	});
+	if (testInstructions["apiKey"].length > 0) {
+		var results = false;
+		var $test = $(".test[id=" + testid + "]");
+		var queryData = "";
+		var url = "";
+		var index = 0;
 
-	hideTestComplete(testid);
-	showLoading(testid)
-	console.log("Running test: " + testid + " ...");
+		$.each(testInstructions, function(name, value) {
+			if (value.length > 0) {
+				if (index == 0) {
+	    			queryData += name + "=" + value;
+	    		}
+	    		else {
+	    			queryData += "&" + name + "=" + value;
+	    		}
+	    	}
+		});
 
-	$.ajax({
-		dataType: "json",
-		url: "https://api.ghostinspector.com/v1/tests/" + testid + "/execute/?apiKey=861527daa7cf3b6e26c294ea3738ec2d1df42fef" + queryData,
-		success: function(json) {
-			results = json;
-			console.log("Results: " + testid);
-			console.log(results);
-			hideLoading(testid);
-			showTestComplete(testid, results.data.passing);
-		},
-		error: function() {
-			alert("Something went wrong when running tests.");
-		}
-	});
+		url = "https://api.ghostinspector.com/v1/tests/" + testid + "/execute/?" + queryData;
+		console.log(url);
 
-	return results;
+		hideTestComplete(testid);
+		showLoading(testid)
+		console.log("Running test: " + testid + " ...");
+
+		$.ajax({
+			dataType: "json",
+			url: url,
+			success: function(json) {
+				if (json.code == "SUCCESS") {
+					results = json;
+					console.log("Results: " + testid);
+					console.log(results);
+					hideLoading(testid);
+					showTestComplete(testid, results.data.passing);
+				}
+				else {
+					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
+					hideLoading(testid);
+				}
+			},
+			error: function() {
+				alert("Something went wrong when running tests.");
+			}
+		});
+
+		return results;
+	}
+	else {
+		alert("Please enter an API key");
+		showTestInstructions();
+	}
 }
 
 function runAllTests() {
-	$(".test").each(function() {
-		var testid = $(this).attr("id");
-		runTest(testid);
-	});
+	if ($(".test").length > 0) {
+		$(".test").each(function() {
+			var testid = $(this).attr("id");
+			runTest(testid);
+		});
+	}
+	else {
+		alert("There are no tests to run");
+	}
 }
 
 function runSuiteTests(suite) {
@@ -128,6 +178,7 @@ function formatTests() {
 		msg += '</div>';
 	}
 
+	$("#test-cont").empty();
 	$("#test-cont").append(msg);
 	initClickEvents();
 
@@ -202,6 +253,10 @@ function initClickEvents() {
 	$("#test-overlay").unbind('click').click(function() {
 		showTestInstructions();
 	});
+
+	$("#get-tests-button").unbind('click').click(function() {
+		getTests();
+	});
 }
 
 
@@ -259,6 +314,7 @@ function showTestInstructions() {
 		$cont.show();
 		$("#test-inst-cont").css("top", 25);
 		$cont.css("opacity", 1);
+		$(".test-input:first").select();
 	}
 	else {
 		$("#test-inst-cont").css("top", -100);

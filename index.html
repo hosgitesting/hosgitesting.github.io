@@ -18,11 +18,14 @@
 		<div id="nav-cont">
 			<div class="nav-heading">HopeOneSource Ghost Inspector Tests</div>
 			<div class="button-cont" style="padding: 22px 20px;">
-				<div class="test-instructions-button button">Custom Test Insctructions</div>
+				<div class="test-instructions-button button">Test Insctructions</div>
 				<div class="run-all-button button button-green">Run All Tests</div>
 			</div>
 		</div>
 		<div id="test-cont">
+			<div style="text-align: center; margin-top: 50px;">
+				<div id="get-tests-button" class="button button-green">Get Tests</div>
+			</div>
 		</div>
 
 		<div id="loading-tests">Loading Tests</div>
@@ -30,11 +33,15 @@
 		<div id="test-instructions-cont">
 			<div id="test-overlay"></div>
 			<div id="test-inst-cont">
-				<div style="font-size: 18px; padding: 15px; background-color: #e9e9e9; height: 50px; box-sizing: border-box; margin: -15px -15px 15px -15px; font-weight: bold;">Custom Test Instructions</div>
+				<div style="font-size: 18px; padding: 15px; background-color: #e9e9e9; height: 50px; box-sizing: border-box; margin: -15px -15px 15px -15px; font-weight: bold;">Test Instructions</div>
 				<div class="test-close" onclick="showTestInstructions();">x</div>
 				<div class="test-item">
+					<div class="test-heading">API Key</div>
+					<input class="test-input" type="text" instruction="apiKey" value="">
+				</div>
+				<div class="test-item">
 					<div class="test-heading">Starting URL</div>
-					<input class="test-input" type="text" instruction="starturl" value="" placeholder="Current: https://dev-hos.pantheonsite.io">
+					<input class="test-input" type="text" instruction="startUrl" value="" placeholder="Current: https://dev-hos.pantheonsite.io">
 				</div>
 				<div class="test-button-cont">
 					<div class="button" onclick="showTestInstructions();">Cancel</div>
