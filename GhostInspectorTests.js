@@ -363,7 +363,9 @@ function getQueryString() {
 					//runAllTests();
 					break;
 				default:
-					testInstructions[name] = value;
+					if (name.length > 0 && value != undefined) {
+						testInstructions[name] = value;
+					}
 					break;
 			}
 		});
