@@ -1,7 +1,15 @@
 
 /*-- GLOBAL VARIABLES ------------------------------------------------------------------------*/
 
-//     861527daa7cf3b6e26c294ea3738ec2d1df42fef
+// 861527daa7cf3b6e26c294ea3738ec2d1df42fef
+
+
+// TODO: 
+// - Remove API key
+// - Uncomment Runall function call in formatTests()
+// - Add test results menu
+
+
 var testData;
 var testInstructions = {
 	apiKey: "",
@@ -9,6 +17,7 @@ var testInstructions = {
 };
 var testPasses = 0;
 var testFails = 0;
+var runall = false;
 
 
 /*-- ON PAGE LOAD ----------------------------------------------------------------------------*/
@@ -45,9 +54,9 @@ function getTests() {
 				if (json.code == "SUCCESS") {
 					testData = sortBySuite(json.data); 
 					success = true;
-					formatTests();
 					console.log("Tests retrieved: ");
 					console.log(testData);
+					formatTests();
 				}
 				else {
 					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
@@ -89,7 +98,6 @@ function runTest(testid) {
 		});
 
 		url = "https://api.ghostinspector.com/v1/tests/" + testid + "/execute/?" + queryData;
-		console.log(url);
 
 		hideTestComplete(testid);
 		showLoading(testid)
@@ -190,6 +198,11 @@ function formatTests() {
 			$(this).removeClass("pass");
 		}
 	});
+
+	if (runall) {
+		//runAllTests();
+		runall = false;
+	}
 }
 
 function sortBySuite(data) {
@@ -360,8 +373,11 @@ function getQueryString() {
     	$.each(obj, function(name, value) {
 			switch (name) {
 				case "runall":
-					//runAllTests();
+					if (value == "true") {
+						runall = true;
+					}
 					break;
+
 				default:
 					if (name.length > 0 && value != undefined) {
 						testInstructions[name] = value;
