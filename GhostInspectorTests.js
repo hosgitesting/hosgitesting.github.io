@@ -1,12 +1,7 @@
 
 /*-- GLOBAL VARIABLES ------------------------------------------------------------------------*/
 
-// 861527daa7cf3b6e26c294ea3738ec2d1df42fef
-
-
 // TODO: 
-// - Remove API key
-// - Uncomment Runall function call in formatTests()
 // - Add test results menu
 
 
@@ -33,7 +28,6 @@ $(document).ready(function() {
 	initClickEvents();
 	$("#test-instructions-cont").hide();
 	
-
 });
 
 
@@ -65,7 +59,7 @@ function getTests() {
 				$("#loading-tests").hide();
 			},
 			error: function() {
-				alert("Something went wrong when getting tests.");
+				alert("Something went wrong getting tests.");
 			}
 		});
 
@@ -120,7 +114,7 @@ function runTest(testid) {
 				}
 			},
 			error: function() {
-				alert("Something went wrong when running tests.");
+				alert("Something went wrong running tests.");
 			}
 		});
 
@@ -200,13 +194,12 @@ function formatTests() {
 	});
 
 	if (runall) {
-		//runAllTests();
+		runAllTests();
 		runall = false;
 	}
 }
 
 function sortBySuite(data) {
-
 	function compare(a, b) {
 		var suiteA = a.suite.name;
 		var suiteB = b.suite.name;
@@ -219,10 +212,8 @@ function sortBySuite(data) {
 	 	else if (suiteA < suiteB) {
 	  		comparison = -1;
 	  	}
-
 	 	return comparison;
 	}
-
 	return data.sort(compare);
 }
 
@@ -274,13 +265,6 @@ function initClickEvents() {
 		getTests();
 	});
 }
-
-
-
-
-
-
-
 
 function showLoading(testid) {
 	$test = $(".test[id=" + testid + "]").find($(".run-test-button"));
