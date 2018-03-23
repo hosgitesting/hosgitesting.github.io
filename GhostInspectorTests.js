@@ -328,15 +328,27 @@ function showTestInstructions() {
 
 function saveTestInstructions() {
 	$cont = $("#test-inst-cont");
+	var get = false;
 
 	$cont.find($(".test-input")).each(function() {
 		var instruction = $(this).attr("instruction");
+
+		if (instruction == "apiKey") {
+			if ($(this).val() != testInstructions["apiKey"] && $(this).val().length > 0) {
+				get = true;
+			}
+		}
+
 		testInstructions[instruction] = $(this).val();
 	});
 
 	console.log("Custom test instructions set: ");
 	console.log(testInstructions);
 	showTestInstructions();
+
+	if (get) {
+		getTests();
+	}
 }
 
 function clearTestInstructions() {
