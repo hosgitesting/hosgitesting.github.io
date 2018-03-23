@@ -40,6 +40,7 @@ function getTests() {
 	if (testInstructions["apiKey"].length > 0) {
 		var success = false;
 		$("#loading-tests").show();
+		$("#get-tests-button").hide();
 
 		$.ajax({
 			dataType: "json",
@@ -54,12 +55,14 @@ function getTests() {
 				}
 				else {
 					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
+					$("#get-tests-button").show();
 				}
 
 				$("#loading-tests").hide();
 			},
 			error: function() {
 				alert("Something went wrong getting tests.");
+				$("#get-tests-button").show();
 			}
 		});
 
