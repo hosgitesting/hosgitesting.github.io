@@ -91,6 +91,8 @@ function runTest(testid) {
 	    		else {
 	    			queryData += "&" + name + "=" + value;
 	    		}
+			
+			index++;
 	    	}
 		});
 
