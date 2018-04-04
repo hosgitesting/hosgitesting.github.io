@@ -43,11 +43,11 @@ https://hosgitesting.github.io/
   - Adding the API key for Ghost Inspector into the query string of the URL will load the page and automatically load any tests in that account. 
 
 ### Starting with API key, running all tests
-- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=<apiKey>&runall=true 
+- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=APIKEY&runall=true 
   - Adding the property “runall=true” to the query string in addition to the API key for Ghost Inspector will load the page, automatically load any tests in that account, then begin running all available tests. Test results will be displayed normally.
 
 ### Starting with API key and custom environment URL
-- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=<apiKey>&urlStart=<newURL>
+- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=APIKEY&urlStart=NEWURL
   - Adding the property “urlStart=<newURL>” to the query string in addition to the API key for Ghost Inspector will load the page, automatically load any tests in that account, then apply the test option “Environment URL” based on the URL entered
   - Replace “<newURL>” with the desired environment URL
     - For example: …&urlStart=https://dev-hos.pantheonsite.io
