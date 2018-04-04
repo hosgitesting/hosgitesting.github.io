@@ -39,7 +39,7 @@ https://hosgitesting.github.io/
 
 
 ### Starting with API key in url
-- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=<apiKey> 
+- Navigate to the following URL: https://hosgitesting.github.io/?apiKey=APIKEY 
   - Adding the API key for Ghost Inspector into the query string of the URL will load the page and automatically load any tests in that account. 
 
 ### Starting with API key, running all tests
