@@ -1,24 +1,27 @@
 
 /*-- GLOBAL VARIABLES ------------------------------------------------------------------------*/
 
-// TODO: 
-// - Add test results menu
+/* TODO ------
+- Change async back to false;
 
+
+------------*/
 
 var testData;
 var testInstructions = {
 	apiKey: "",
-	startUrl: ""
+	urlStart: ""
 };
-var testPasses = 0;
-var testFails = 0;
 var runall = false;
+var runningTests = [];
+var numRunningTests = 5;
+var async = false;
+var getResultsDone = 0;
 
 
 /*-- ON PAGE LOAD ----------------------------------------------------------------------------*/
 
 $(document).ready(function() {
-
 	getQueryString();
 
 	if (testInstructions["apiKey"].length > 0) {
@@ -26,35 +29,33 @@ $(document).ready(function() {
 	}
 
 	initClickEvents();
-	$("#test-instructions-cont").hide();
-	
+	$(".menu-cont").hide();
+	$("#running-tests").hide();
 });
-
-
-
 
 /*-- FUNCTIONS -------------------------------------------------------------------------------*/
 
 function getTests() {
-
-	if (testInstructions["apiKey"].length > 0) {
+	if (testInstructions["apiKey"].length == 0) {
+		alert("Please enter an API key");
+		showTestInstructions();
+	}
+	else {
 		var success = false;
 		$("#loading-tests").show();
 		$("#get-tests-button").hide();
 
 		$.ajax({
 			dataType: "json",
-			url: "https://api.ghostinspector.com/v1/tests/?apiKey=" + testInstructions["apiKey"],
-			success: function(json) {
-				if (json.code == "SUCCESS") {
-					testData = sortBySuite(json.data); 
+			url: "https://api.ghostinspector.com/v1/tests/?apiKey=" + testInstructions.apiKey,
+			success: function(results) {
+				if (results.code == "SUCCESS") {
+					testData = sortBySuite(results.data); 
 					success = true;
-					console.log("Tests retrieved: ");
-					console.log(testData);
 					formatTests();
 				}
 				else {
-					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
+					alert("Something went wrong:\n\n" + results.errorType + "\n" + results.message);
 					$("#get-tests-button").show();
 				}
 
@@ -63,22 +64,20 @@ function getTests() {
 			error: function() {
 				alert("Something went wrong getting tests.");
 				$("#get-tests-button").show();
+				$("#loading-tests").hide();
 			}
 		});
 
 		return success;
 	}
-	else {
-		alert("Please enter an API key");
-		showTestInstructions();
-	}
 }
 
 function runTest(testid) {
-
-	if (testInstructions["apiKey"].length > 0) {
-		var results = false;
-		var $test = $(".test[id=" + testid + "]");
+	if (testInstructions["apiKey"].length == 0) {
+		alert("Please enter an API key");
+		showTestInstructions();
+	}
+	else {
 		var queryData = "";
 		var url = "";
 		var index = 0;
@@ -91,64 +90,144 @@ function runTest(testid) {
 	    		else {
 	    			queryData += "&" + name + "=" + value;
 	    		}
-			
-			index++;
+
+	    		index++;
 	    	}
 		});
 
 		url = "https://api.ghostinspector.com/v1/tests/" + testid + "/execute/?" + queryData;
-
 		hideTestComplete(testid);
-		showLoading(testid)
-		console.log("Running test: " + testid + " ...");
+		hidePending(testid);
+		showLoading(testid);
+		if (async) { showRunningTests(); }
 
 		$.ajax({
 			dataType: "json",
 			url: url,
-			success: function(json) {
-				if (json.code == "SUCCESS") {
-					results = json;
-					console.log("Results: " + testid);
-					console.log(results);
+			success: function(results) {
+				if (results.code == "SUCCESS") {
 					hideLoading(testid);
 					showTestComplete(testid, results.data.passing);
+					getTestResults(testid);
+					if (async) { runNextTest(testid); }
 				}
 				else {
-					alert("Something went wrong:\n\n" + json.errorType + "\n" + json.message);
+					alert("Something went wrong:\n\n" + results.errorType + "\n" + results.message);
 					hideLoading(testid);
+					if (async) { cancelTests(); }
 				}
 			},
 			error: function() {
-				alert("Something went wrong running tests.");
+				alert("Something went wrong running a test.");
+				if (async) { runNextTest(testid); }
 			}
 		});
-
-		return results;
-	}
-	else {
-		alert("Please enter an API key");
-		showTestInstructions();
 	}
 }
 
+function runSingleTest(test) {
+	var testid = test.attr("id");
+
+	if (async) { 
+		var checkIndex = runningTests.indexOf(testid);
+
+		if (checkIndex == -1) {
+			numRunningTests = 1;
+			runningTests.push(testid);
+			runNextTest();
+		}
+	}
+	else {
+		runTest(testid);
+	}
+}
+
+function runSuiteTests(suite) {
+	var run = false; 
+
+	suite.find($(".test")).each(function() {
+		var testid = $(this).attr("id");
+
+		if (async) {
+			var checkIndex = runningTests.indexOf(testid);
+
+			if (checkIndex == -1) {
+				hideTestComplete(testid);
+				showPending(testid);
+				runningTests.push(testid);
+				run = true;
+			}
+		}
+		else {
+			runTest(testid);
+		}
+	});
+
+	numRunningTests = suite.find($(".test")).length;
+	if (run) { runNextTest(); }
+}
+
 function runAllTests() {
+	var run = false;
+
 	if ($(".test").length > 0) {
 		$(".test").each(function() {
 			var testid = $(this).attr("id");
-			runTest(testid);
+
+			if (async) { 
+				var checkIndex = runningTests.indexOf(testid);
+
+				if (checkIndex == -1) {
+					hideTestComplete(testid);
+					showPending(testid);
+					runningTests.push(testid);
+					run = true;
+				}
+			}
+			else {
+				runTest(testid);
+			}
 		});
+
+		numRunningTests = $(".test").length;
+		if (run) { runNextTest(); }
 	}
 	else {
 		alert("There are no tests to run");
 	}
 }
 
-function runSuiteTests(suite) {
-	suite.find($(".test")).each(function() {
-		var testid = $(this).attr("id");
+function runNextTest(lastId = false) {
 
-		runTest(testid);
-	});
+	if (runningTests.length == 0 ) {
+		numRunningTests = 0;
+
+		setTimeout(function() {
+			hideRunningTests();
+		}, 2000);
+	}
+	else {
+		if (lastId) {
+			var index = runningTests.indexOf(lastId);
+			runningTests.splice(index, 1);
+
+			if (runningTests.length > 0) {
+				runTest(runningTests[0]);
+			}
+			else {
+				setTimeout(function() {
+					hideRunningTests();
+				}, 2000);
+			}
+		}
+		else {
+			runTest(runningTests[0]);
+		}
+	}
+
+	var barWidth = 100 - Math.ceil((runningTests.length / numRunningTests) * 100);
+	$("#running-tests-progress-bar").css("width", barWidth + "%");
+	$("#running-tests-progress-text").text(barWidth + "%");
 }
 
 function formatTests() {
@@ -158,7 +237,6 @@ function formatTests() {
 	for (i=0; i<testData.length; i++) {
 		var test = testData[i];
 		var testDesc = test.details || "(No description)";
-		var testStatus = test.passing;
 
 		if (suite != test.suite._id) {
 			if (suite!= '') {
@@ -178,8 +256,12 @@ function formatTests() {
 		msg +=  		'<div class="test-expand-arrow"></div>';
 		msg += 		'</div>';
 		msg += 		'<div class="test-name">' + test.name + '</div>';
-		msg += 		'<div class="desc-cont">' + testDesc + '<br><br><div class="desc-passing">Currently passing: <span class="pass" style="text-transform: capitalize; color: red">' + testStatus + '</span></div></div>';
+		msg += 		'<div class="desc-cont">' + testDesc + '<br>';
+		msg += 			'<div class="results-test-steps-cont-outer">';
+		msg +=			'</div>';
+		msg +=		'</div>';
 		msg += 		'<div class="button-cont">';
+		msg +=			'<div class="pending"></div>';
 		msg += 			'<div class="loading"></div>';
 		msg += 			'<div class="test-complete"></div>';
 		msg += 			'<div class="test-failed">Failed</div>';
@@ -208,7 +290,6 @@ function sortBySuite(data) {
 	function compare(a, b) {
 		var suiteA = a.suite.name;
 		var suiteB = b.suite.name;
-
 		var comparison = 0;
 
 		if (suiteA > suiteB) {
@@ -242,7 +323,7 @@ function initClickEvents() {
 
 	$(".run-test-button").unbind('click').click(function() {
 		if (!$(this).hasClass("disabled")) {
-			runTest($(this).closest($(".test")).attr("id"));
+			runSingleTest($(this).closest($(".test")));
 		}
 	});
 
@@ -269,6 +350,16 @@ function initClickEvents() {
 	$("#get-tests-button").unbind('click').click(function() {
 		getTests();
 	});
+
+	$("#get-latest-results-button").unbind('click').click(function() {
+		$(this).addClass("disabled");
+		getResultsDone = 0;
+
+		$(".test").each(function() {
+			var testid = $(this).attr("id");
+			getTestResults(testid);
+		});
+	});
 }
 
 function showLoading(testid) {
@@ -283,45 +374,39 @@ function hideLoading(testid) {
 	$test.closest($(".button-cont")).find($(".loading")).hide();
 }
 
+function showPending(testid) {
+	$test = $(".test[id=" + testid + "]").find($(".run-test-button"));
+	$test.addClass("disabled");
+	$test.closest($(".button-cont")).find($(".pending")).show();
+}
+
+function hidePending(testid) {
+	$test = $(".test[id=" + testid + "]").find($(".run-test-button"));
+	$test.removeClass("disabled");
+	$test.closest($(".button-cont")).find($(".pending")).hide();
+}
+
 function showTestComplete(testid, success = true) {
 	if (success) {
 		$(".test[id=" + testid + "]").find($(".test-complete")).css("opacity", 1);
-		testPasses++;
+		$(".test[id=" + testid + "]").find($(".test-failed")).css("opacity", 0);
 	}
 	else {
 		$(".test[id=" + testid + "]").find($(".test-failed")).css("opacity", 1);
-		testFails++;
-	}
-
-	if ($(".disabled").length == 0) {
-		console.log("----- TESTING COMPLETE -----");
-		console.log("Passed: " + testPasses);
-		console.log("Failed: " + testFails);
-		console.log("----------------------------");
+		$(".test[id=" + testid + "]").find($(".test-complete")).css("opacity", 0);	
 	}
 }
 
 function hideTestComplete(testid) {
 	$(".test[id=" + testid + "]").find($(".test-complete")).css("opacity", 0);
 	$(".test[id=" + testid + "]").find($(".test-failed")).css("opacity", 0);
-	testPasses = 0;
-	testFails = 0;
 }
 
-function showTestInstructions() {
+function showTestInstructions(hide = false) {
 	$cont = $("#test-instructions-cont");
+	$("#get-latest-results-button").removeClass("disabled");
 
-	if ($cont.css("display") == "none") {
-		$(".test-input").each(function() {
-			$(this).val(testInstructions[$(this).attr("instruction")]);
-		});
-
-		$cont.show();
-		$("#test-inst-cont").css("top", 25);
-		$cont.css("opacity", 1);
-		$(".test-input:first").select();
-	}
-	else {
+	if ($cont.css("display") != "none" || hide) {
 		$("#test-inst-cont").css("top", -100);
 		$cont.css("opacity", 0);
 
@@ -329,29 +414,42 @@ function showTestInstructions() {
 			$cont.hide();
 		}, 500);
 	}
+	else {
+		$(".test-input").each(function() {
+			$(this).val(testInstructions[$(this).attr("instruction")]);
+		});
+
+		$("#test-sync").val((async ? "async" : "sync"));
+
+		$cont.show();
+		$("#test-inst-cont").css("top", 25);
+		$cont.css("opacity", 1);
+		$(".test-input:first").focus();
+	}
 }
 
 function saveTestInstructions() {
 	$cont = $("#test-inst-cont");
-	var get = false;
+	var newApiKey = false;
 
 	$cont.find($(".test-input")).each(function() {
 		var instruction = $(this).attr("instruction");
 
 		if (instruction == "apiKey") {
 			if ($(this).val() != testInstructions["apiKey"] && $(this).val().length > 0) {
-				get = true;
+				newApiKey = true;
 			}
 		}
 
 		testInstructions[instruction] = $(this).val();
 	});
 
-	console.log("Custom test instructions set: ");
-	console.log(testInstructions);
-	showTestInstructions();
+	async = ($("#test-sync").val() == "sync" ? false : true);
 
-	if (get) {
+	showTestInstructions();
+	setQueryString();
+
+	if (newApiKey) {
 		getTests();
 	}
 }
@@ -386,7 +484,134 @@ function getQueryString() {
 					break;
 			}
 		});
+
+		setQueryString();
     }
 
     return obj;
+}
+
+function setQueryString() {
+  	var query = [];
+  	var queryString = "";
+  	
+  	for(var attr in testInstructions) {
+		if (testInstructions.hasOwnProperty(attr) && testInstructions[attr].length > 0) {
+  			query.push(encodeURIComponent(attr) + "=" + encodeURIComponent(testInstructions[attr]));
+		}
+	}
+
+	queryString = '?' + query.join('&');
+
+	if (history.pushState) {
+		var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + queryString;
+		window.history.pushState({path:newurl},'',newurl);
+	}
+}
+
+function getTestResults(testid) {
+	var url = 'https://api.ghostinspector.com/v1/tests/' + testid + '/results/?apiKey=' + testInstructions.apiKey;
+
+	$.ajax({
+		dataType: "json",
+		url: url,
+		success: function(results) {
+			if (results.code == "SUCCESS") {
+				setTestResults(testid, results);
+			}
+			else {
+				alert("Something went wrong:\n\n" + results.errorType + "\n" + results.message);
+			}
+		},
+		error: function() {
+			alert("Something went wrong getting test results.");
+		}
+	});
+}
+
+function setTestResults(testid, results) {
+	var $stepCont = $(".test[id=" + testid + "]").find($(".results-test-steps-cont-outer"));
+	var msg = '';
+	var data = results.data[0];
+	var step;
+	var command;
+	var passing = false;
+
+	$stepCont.empty();
+	$stepCont.append('' + 
+		'<div class="results-test-heading">Latest Test Results (' + formatDateTime(data.dateExecutionFinished) + ')' + 
+			'<div class="results-test-step-button-cont">' +
+				'<div class="button" onclick="window.open(\'' + data.screenshot.original.defaultUrl + '\', \'mywindow\');" style="margin-right: 10px;">Screenshot</div>' +
+				'<div class="button" onclick="window.open(\'' + data.video.url + '\', \'mywindow\');">Video</div>' +
+			'</div>' + 
+			'<div style="position: absolute; right: 0px; bottom: 0px;">Start: <a href="' + data.startUrl + '">' + data.startUrl + '</a></div>' + 
+		'</div>' + 
+		'<div class="results-test-steps-cont"></div>' + 
+	'');
+
+	var $stepInner = $stepCont.find($(".results-test-steps-cont"));
+
+	for (i=0; i< data.steps.length; i++) {
+		step = data.steps[i]
+		command = step.command.charAt(0).toUpperCase() + step.command.slice(1);
+		passing = (step.passing ? "results-test-step-pass" : "results-test-step-fail");
+
+		msg +=		'<div class="results-test-step ' + passing + '">';
+		msg +=			'<div class="results-test-step-name">' + (step.sequence + 1) + '</div>';
+		msg +=			'<div class="results-test-step-status"></div>';
+		msg +=			'<div class="results-test-step-info">';
+		msg +=				'<div class="results-test-step-command">' + command + ': </div>';
+		msg +=				'<div class="results-test-step-target">' + step.target + ' > </div>';
+		msg +=				'<pre class="results-test-step-value">' + step.value + '</pre>';
+		msg +=				'<div class="results-test-step-url">';
+		msg +=					'<a href="' + step.url + '">' + step.url + '</a>';
+		msg +=				'</div>';
+		msg +=			'</div>';
+		msg +=		'</div>';
+	}
+
+	$stepInner.append(msg);
+	showTestComplete(testid, data.passing);
+
+	getResultsDone++; 
+	if (getResultsDone == $(".test").length) {
+		showTestInstructions(true);
+		$(".test").removeClass("test-active");
+		$(".desc-cont").css("height", 0);
+	}
+}
+
+function showRunningTests() {
+	if (async) { 
+		$("#running-tests").show();
+		$("#running-tests").css("opacity", 1);
+	}
+}
+
+function hideRunningTests() {
+	if (runningTests.length == 0) {
+		numRunningTests = 0;
+		$("#running-tests").css("opacity", 0);
+
+		setTimeout(function() {
+			$("#running-tests").hide();	
+		}, 500);
+	}
+}
+
+function cancelTests() {
+	runningTests = [];
+
+	$(".test").each(function() {
+		hidePending($(this).attr("id"));
+	});
+}
+
+function formatDateTime(dateTime) {
+	var parts = dateTime.split("T");
+	var date = parts[0];
+	var time = parts[1];
+
+	time = time.slice(0, -1);
+	return date + " / " + time;
 }
