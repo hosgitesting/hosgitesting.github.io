@@ -3,6 +3,9 @@
 
 /* TODO ------
 - Change async back to false;
+- Decode environment URL when loading it into the menu field
+- Remove excess characters when using environment variables between menu and URL
+
 
 
 ------------*/
@@ -90,6 +93,10 @@ function runTest(testid) {
 	    		else {
 	    			queryData += "&" + name + "=" + value;
 	    		}
+
+	    		/*if (name == "urlStart") {
+	    			queryData += "&" + "startUrl=" + value;
+	    		}*/
 
 	    		index++;
 	    	}

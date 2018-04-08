@@ -60,7 +60,7 @@
 				</div>
 				<div class="test-item">
 					<div class="test-heading">Environment URL</div>
-					<input class="test-input" tabindex="2" type="text" spellcheck="false" instruction="urlStart" value="" placeholder="ex: https://dev-hos.pantheonsite.io">
+					<input class="test-input" tabindex="2" type="text" spellcheck="false" instruction="urlStart" value="" placeholder="Default: dev-hos.pantheonsite.io">
 				</div>
 				<div class="test-item">
 					<div class="test-heading">Testing Method</div>
@@ -73,9 +73,9 @@
 					<div id="get-latest-results-button" class="button button-green" tabindex="4">Get Latest Test Results</div>
 				</div>
 				<div class="test-button-cont">
+					<div class="button button-green" tabindex="21" onclick="saveTestInstructions();">Save</div>
 					<div class="button" tabindex="20" onclick="showTestInstructions();">Cancel</div>
-					<div class="button button-red" tabindex="-1" onclick="clearTestInstructions();">Clear</div>
-					<div class="button button-green" tabindex="21" onclick="saveTestInstructions();" style="float: right;">Save</div>
+					<div class="button button-red" tabindex="-1" onclick="clearTestInstructions();" style="float: right;">Clear</div>
 				</div>
 			</div>
 		</div>

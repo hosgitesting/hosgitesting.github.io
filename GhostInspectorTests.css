@@ -81,7 +81,7 @@ pre {
 }
 
 .button {
-	padding: 4px 10px;
+	padding: 4px 15px;
 	background-color: #efefef;
 	border: 1px solid darkgray;
 	display: inline-block;
@@ -89,7 +89,9 @@ pre {
 	cursor: pointer;
 	user-select: none;
 	font-size: 13px;
-	min-width: 50px;
+	min-width: 75px;
+	height: 30px;
+	box-sizing: border-box;
     text-align: center;
     background: linear-gradient(#ffffff,#dadada);
     text-shadow: 0px 0px 15px rgba(40,40,40,0.4);
