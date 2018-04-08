@@ -94,10 +94,6 @@ function runTest(testid) {
 	    			queryData += "&" + name + "=" + value;
 	    		}
 
-	    		/*if (name == "urlStart") {
-	    			queryData += "&" + "startUrl=" + value;
-	    		}*/
-
 	    		index++;
 	    	}
 		});
@@ -106,7 +102,11 @@ function runTest(testid) {
 		hideTestComplete(testid);
 		hidePending(testid);
 		showLoading(testid);
-		if (async) { showRunningTests(); }
+
+		if (async) { 
+			showRunningTests(); 
+			//runningTests.splice(runningTests.indexOf(testid), 1);
+		}
 
 		$.ajax({
 			dataType: "json",
@@ -607,11 +607,17 @@ function hideRunningTests() {
 }
 
 function cancelTests() {
+	for (i=0; i<runningTests.length; i++) {
+		hidePending(runningTests[i]);;
+	}
+
 	runningTests = [];
 
+	/*
 	$(".test").each(function() {
 		hidePending($(this).attr("id"));
 	});
+	*/
 }
 
 function formatDateTime(dateTime) {

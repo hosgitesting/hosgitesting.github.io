@@ -150,7 +150,7 @@ pre {
 	border: 3px solid lightgray;
 	display: inline-block;
 	position: absolute;
-	right: 90px;
+	right: 95px;
 	display: none;
 	border-left-color: #1eadf7;
 }
@@ -167,7 +167,7 @@ pre {
     height: 12px;
     display: inline-block;
     position: absolute;
-    right: 93px;
+    right: 98px;
     top: 12px;
     transform: rotate(45deg);
     border-bottom: 4px solid #18c318;
@@ -182,7 +182,7 @@ pre {
 	height: 20px;
     display: inline-block;
     position: absolute;
-    right: 93px;
+    right: 98px;
     top: 12px;
     text-shadow: 2px 2px 5px rgba(40,40,40,0.3);
     text-align: right;
