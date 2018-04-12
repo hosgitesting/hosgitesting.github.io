@@ -16,7 +16,7 @@ https://hosgitesting.github.io/
 3. Input the API key for the Ghost Inspector account being used
 
 4. (Optional) Input an “Environment URL” in which tests will be run
-    - Default environment URL is https://dev-hos.pantheonsite.io 
+    - Default environment URL is dev-hos.pantheonsite.io 
     - All tests use this environment URL along with relative references for navigation 
     - A local URL should work here as well
     - Please note, the environment URL should be the default homepage (ex. index.html)
@@ -50,7 +50,7 @@ https://hosgitesting.github.io/
 - Navigate to the following URL: https://hosgitesting.github.io/?apiKey=APIKEY&urlStart=NEWURL
   - Adding the property “urlStart=<newURL>” to the query string in addition to the API key for Ghost Inspector will load the page, automatically load any tests in that account, then apply the test option “Environment URL” based on the URL entered
   - Replace “<newURL>” with the desired environment URL
-    - For example: …&urlStart=https://dev-hos.pantheonsite.io
+    - For example: …&urlStart=dev-hos.pantheonsite.io
 
 
 ## Options
@@ -60,19 +60,20 @@ Within the “Options” menu,  you can set or change a few settings related to 
   - Enter the API key from Ghost Inspector for the project in question
 
 - Environment URL
-  - Enter a different URL in which to run tests, in place of the default URL (https://dev-hos.pantheonsite.io)
+  - Enter a different URL in which to run tests, in place of the default URL (dev-hos.pantheonsite.io)
   - Environment URL must be the base URL for the environment (ex. “index.html”)
 
 - Testing Method
-  - When running multiple tests at a time, allows for running tests in parallel, or in sequence.
-    - Running in Sequence (asynchronously)
-      - Tests will be queued up, and run one at a time. This method is far slower than running in parallel, but gives the option to cancel pending tests if needed. 
-    - Running in Parallel (synchronously)
+  - When running multiple tests at a time, allows for running tests simultaneously, or sequentially.
+    - Running tests Simultaneously (synchronously)
       - Tests will all begin running immediately, and are not dependent on other tests completing. This method is fastest, but does not allow for cancelling tests in progress. 
+    - Running tests Sequentially (asynchronously)
+      - Tests will be queued up, and run one at a time. This method is far slower than running in parallel, but gives the option to cancel pending tests if needed. 
+    
 
 - Get Latest Test Results
   - Clicking this button will load the most recent test results into each test listed.
-    - Will display whether the test passed or failed beside each tests “Run Test” button
+    - Will display whether the test passed or failed beside the “Run Test” button of each test
     - Will display individual test steps in the expanded section of each test
       - Includes a link to the screenshot and video of the test being performed
       - Test steps that passed are highlighted in green, steps that failed are highlighted in red. 
