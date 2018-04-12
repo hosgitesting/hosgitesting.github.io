@@ -167,7 +167,7 @@ pre {
     height: 12px;
     display: inline-block;
     position: absolute;
-    right: 98px;
+    right: 100px;
     top: 12px;
     transform: rotate(45deg);
     border-bottom: 4px solid #18c318;
@@ -587,6 +587,7 @@ pre {
 #running-tests-progress-bar-animation {
 	position: absolute;
 	width: 0%;
+	opacity: 0;
 	height: 100%;
 	top: 0px;
 	left: 0px;

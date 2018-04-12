@@ -2,13 +2,9 @@
 /*-- GLOBAL VARIABLES ------------------------------------------------------------------------*/
 
 /* TODO ------
-- Change async back to false;
-- Decode environment URL when loading it into the menu field
-- Remove excess characters when using environment variables between menu and URL
-
-
 
 ------------*/
+
 
 var testData;
 var testInstructions = {
@@ -38,6 +34,7 @@ $(document).ready(function() {
 
 /*-- FUNCTIONS -------------------------------------------------------------------------------*/
 
+// Loads tests into HTML, using API key from var: testInstructions
 function getTests() {
 	if (testInstructions["apiKey"].length == 0) {
 		alert("Please enter an API key");
@@ -75,6 +72,7 @@ function getTests() {
 	}
 }
 
+// Executes running a single test given a test ID, using any/all data from var: testInstructions 
 function runTest(testid) {
 	if (testInstructions["apiKey"].length == 0) {
 		alert("Please enter an API key");
@@ -105,7 +103,6 @@ function runTest(testid) {
 
 		if (async) { 
 			showRunningTests(); 
-			//runningTests.splice(runningTests.indexOf(testid), 1);
 		}
 
 		$.ajax({
@@ -132,6 +129,7 @@ function runTest(testid) {
 	}
 }
 
+// Begins running a single test given the test element (used mostly for sequential testing)
 function runSingleTest(test) {
 	var testid = test.attr("id");
 
@@ -149,6 +147,7 @@ function runSingleTest(test) {
 	}
 }
 
+// Begins running a suite of tests given the suite element
 function runSuiteTests(suite) {
 	var run = false; 
 
@@ -170,10 +169,11 @@ function runSuiteTests(suite) {
 		}
 	});
 
-	numRunningTests = suite.find($(".test")).length;
+	numRunningTests = (suite.find($(".test")).length);
 	if (run) { runNextTest(); }
 }
 
+// Begins running all tests currently loaded
 function runAllTests() {
 	var run = false;
 
@@ -204,10 +204,14 @@ function runAllTests() {
 	}
 }
 
+// Runs the next pending test, or completes testing if no pending tests remain (used for sequential testing)
 function runNextTest(lastId = false) {
+	var barWidth = 0;
 
 	if (runningTests.length == 0 ) {
 		numRunningTests = 0;
+		barWidth = 100;
+		$("#running-tests-progress-bar-animation").css("animation-name", "none");
 
 		setTimeout(function() {
 			hideRunningTests();
@@ -215,11 +219,10 @@ function runNextTest(lastId = false) {
 	}
 	else {
 		if (lastId) {
-			var index = runningTests.indexOf(lastId);
-			runningTests.splice(index, 1);
-
 			if (runningTests.length > 0) {
 				runTest(runningTests[0]);
+				runningTests.splice(0, 1);
+				barWidth = 100 - Math.ceil(((runningTests.length + 1) / numRunningTests) * 100);
 			}
 			else {
 				setTimeout(function() {
@@ -229,14 +232,23 @@ function runNextTest(lastId = false) {
 		}
 		else {
 			runTest(runningTests[0]);
+			runningTests.splice(0, 1);
+			barWidth = 0;
 		}
 	}
 
-	var barWidth = 100 - Math.ceil((runningTests.length / numRunningTests) * 100);
+	if (runningTests.length <= 0) {
+		$("#cancel-tests-button").addClass("disabled");
+	}
+	else {
+		$("#cancel-tests-button").removeClass("disabled");
+	}
+
 	$("#running-tests-progress-bar").css("width", barWidth + "%");
 	$("#running-tests-progress-text").text(barWidth + "%");
 }
 
+// Generates HTML for tests retrieved from Ghost Inspector from func: getTests(), using data from var: testData
 function formatTests() {
 	var msg = '';
 	var suite = '';
@@ -293,6 +305,7 @@ function formatTests() {
 	}
 }
 
+// Sorts tests alphabetically by suite
 function sortBySuite(data) {
 	function compare(a, b) {
 		var suiteA = a.suite.name;
@@ -310,6 +323,7 @@ function sortBySuite(data) {
 	return data.sort(compare);
 }
 
+// Initializes element click events
 function initClickEvents() {
 	$(".test-expand-cont").unbind('click').click(function() {
 		var $test = $(this).closest($(".test"));
@@ -435,6 +449,7 @@ function showTestInstructions(hide = false) {
 	}
 }
 
+// Saves the values of each field from the options menu to the matching value in var: testInstructions
 function saveTestInstructions() {
 	$cont = $("#test-inst-cont");
 	var newApiKey = false;
@@ -447,13 +462,22 @@ function saveTestInstructions() {
 				newApiKey = true;
 			}
 		}
+		else if (instruction == "urlStart") {
+			var substrings = ["https", "http", ":", "//", "www.", "www"];
+
+			for (i=0; i<substrings.length; i++) {
+				if ($(this).val().indexOf(substrings[i]) !== -1) {
+					$(this).val($(this).val().replace(substrings[i],''));
+				}
+			}
+		}
 
 		testInstructions[instruction] = $(this).val();
 	});
 
 	async = ($("#test-sync").val() == "sync" ? false : true);
 
-	showTestInstructions();
+	showTestInstructions(true);
 	setQueryString();
 
 	if (newApiKey) {
@@ -461,10 +485,12 @@ function saveTestInstructions() {
 	}
 }
 
+// Clears each input in the options menu
 function clearTestInstructions() {
 	$(".test-input").val("");
 }
 
+// Retrieves the query string and updates fields in the options menu for any values present
 function getQueryString() {
 	var obj = {};
     var hash;
@@ -498,6 +524,7 @@ function getQueryString() {
     return obj;
 }
 
+// Updates the query string to include any values present in var: testInstructions
 function setQueryString() {
   	var query = [];
   	var queryString = "";
@@ -516,6 +543,7 @@ function setQueryString() {
 	}
 }
 
+// Retrieves a list of all previous testing results from Ghost Inspector for a single test, given a test ID
 function getTestResults(testid) {
 	var url = 'https://api.ghostinspector.com/v1/tests/' + testid + '/results/?apiKey=' + testInstructions.apiKey;
 
@@ -536,6 +564,7 @@ function getTestResults(testid) {
 	});
 }
 
+// Generates HTML for the most recent test results for a single test, given a test ID and the full list of results (from func: getTestResults())
 function setTestResults(testid, results) {
 	var $stepCont = $(".test[id=" + testid + "]").find($(".results-test-steps-cont-outer"));
 	var msg = '';
@@ -588,10 +617,12 @@ function setTestResults(testid, results) {
 	}
 }
 
+// Displays the overlay bar containing test progress bar and Cancel Pending Tests button
 function showRunningTests() {
 	if (async) { 
 		$("#running-tests").show();
 		$("#running-tests").css("opacity", 1);
+		$("#running-tests-progress-bar-animation").css("animation-name", "progress-bar");
 	}
 }
 
@@ -606,20 +637,22 @@ function hideRunningTests() {
 	}
 }
 
+// Removes any pending tests from the queue (array: runningTests)
 function cancelTests() {
-	for (i=0; i<runningTests.length; i++) {
-		hidePending(runningTests[i]);;
+	if (!$("#cancel-tests-button").hasClass("disabled")) {
+		for (i=0; i<runningTests.length; i++) {
+			hidePending(runningTests[i]);;
+		}
+
+		runningTests = [];
+		$("#cancel-tests-button").addClass("disabled");
+		var barWidth = 100 - Math.ceil((1 / numRunningTests) * 100);
+		$("#running-tests-progress-bar").css("width", barWidth + "%");
+		$("#running-tests-progress-text").text(barWidth + "%");
 	}
-
-	runningTests = [];
-
-	/*
-	$(".test").each(function() {
-		hidePending($(this).attr("id"));
-	});
-	*/
 }
 
+// Returns formatted date-time 
 function formatDateTime(dateTime) {
 	var parts = dateTime.split("T");
 	var date = parts[0];

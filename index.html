@@ -65,16 +65,16 @@
 				<div class="test-item">
 					<div class="test-heading">Testing Method</div>
 					<select id="test-sync" class="test-select" tabindex="3">
-						<option value="sync" selected>Parallel - (tests run at the same time, cannot be canceled)</option>
-						<option value="async">Sequence - (tests run one at a time, pending tests can be canceled)</option>
+						<option value="sync" selected>Simultaneous - (tests run at the same time, cannot be canceled)</option>
+						<option value="async">Sequential - (tests run one at a time, pending tests can be canceled)</option>
 					</select>
 				</div>
 				<div class="test-item" style="margin-top: 30px;">
 					<div id="get-latest-results-button" class="button button-green" tabindex="4">Get Latest Test Results</div>
 				</div>
 				<div class="test-button-cont">
-					<div class="button button-green" tabindex="21" onclick="saveTestInstructions();">Save</div>
-					<div class="button" tabindex="20" onclick="showTestInstructions();">Cancel</div>
+					<div class="button button-green" tabindex="20" onclick="saveTestInstructions();">Save</div>
+					<div class="button" tabindex="21" onclick="showTestInstructions();">Cancel</div>
 					<div class="button button-red" tabindex="-1" onclick="clearTestInstructions();" style="float: right;">Clear</div>
 				</div>
 			</div>
