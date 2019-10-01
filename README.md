@@ -1,4 +1,4 @@
-# HopeOneSource Ghost Inspector Testing
+# Ghost Inspector Testing
 https://hosgitesting.github.io/
 
 ## Purpose
@@ -16,7 +16,6 @@ https://hosgitesting.github.io/
 3. Input the API key for the Ghost Inspector account being used
 
 4. (Optional) Input an “Environment URL” in which tests will be run
-    - Default environment URL is dev-hos.pantheonsite.io 
     - All tests use this environment URL along with relative references for navigation 
     - A local URL should work here as well
     - Please note, the environment URL should be the default homepage (ex. index.html)
@@ -50,7 +49,7 @@ https://hosgitesting.github.io/
 - Navigate to the following URL: https://hosgitesting.github.io/?apiKey=APIKEY&urlStart=NEWURL
   - Adding the property “urlStart=<newURL>” to the query string in addition to the API key for Ghost Inspector will load the page, automatically load any tests in that account, then apply the test option “Environment URL” based on the URL entered
   - Replace “<newURL>” with the desired environment URL
-    - For example: …&urlStart=dev-hos.pantheonsite.io
+    - For example: …&urlStart=google.com
 
 
 ## Options
@@ -60,8 +59,8 @@ Within the “Options” menu,  you can set or change a few settings related to 
   - Enter the API key from Ghost Inspector for the project in question
 
 - Environment URL
-  - Enter a different URL in which to run tests, in place of the default URL (dev-hos.pantheonsite.io)
-  - Environment URL must be the base URL for the environment (ex. “index.html”)
+  - Enter a different URL in which to run tests, in place of the default URL
+  - Environment URL should be the base URL for the environment (ex. “index.html”)
 
 - Testing Method
   - When running multiple tests at a time, allows for running tests simultaneously, or sequentially.
